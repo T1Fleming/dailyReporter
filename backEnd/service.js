@@ -43,11 +43,12 @@ const news = async function () {
     return axios.get(url)
 }
 
-const commonWorkBar = function () {
 
+const toDo = function (toDoArray) {
+    return toDoArray
 }
 
-const toDo = function () {
+const commonWorkBar = function () {
 
 }
 
