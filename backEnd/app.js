@@ -3,26 +3,51 @@
 
 require('dotenv').config()
 const express = require('express')
+const bodyParser = require('body-parser')
 const app = express()
 const port = 8000
 const core = require('./src/service')
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
+app.use(bodyParser.json())
 
-app.get('/upload', (req, res) => {
+app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-app.get('/news', (req, res) => {
-  resp = await core.newsData()
-  res.send(resp)
+app.post('/upload', (req, res) => {
+  try {
+    resp = core.addTask(req)
+    res.send(resp)
+  } catch {
+    res.send('No Data')
+  }
 })
 
-app.get('/weather', (req, res) => {
-  resp = await core.weatherData(37.55, -122.31)
-  res.send(resp)
+app.get('/news', async (req, res) => {
+  try {
+    resp = await core.newsData()
+    res.send(resp.data)
+  } catch {
+    res.send('No Data')
+  }
+})
+
+app.get('/weather', async (req, res) => {
+  try {
+    resp = await core.weatherData(37.55, -122.31)
+    res.send(resp.data)
+  } catch {
+    res.send('No Data')
+  }
+})
+
+app.get('/advice', async (req, res) => {
+  try {
+    resp = await core.adviceData()
+    res.send(resp.data)
+  } catch {
+    res.send('No Data')
+  }
 })
 
 

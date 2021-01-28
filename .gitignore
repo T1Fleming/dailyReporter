@@ -3,6 +3,7 @@
 .env
 node_modules
 package-lock.json
+task_db.json
 
 # dependencies
 /node_modules

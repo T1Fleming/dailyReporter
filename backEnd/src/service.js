@@ -1,38 +1,66 @@
 const axios = require('axios');
 const fs = require('fs')
 const csv = require('csv-parse');
+const db_path = '../db/task_db.json'
 
-const parseCsv = async function () {
-    //  {
-    //     toDoTask: [ 'toDo', 'refinance car', 'clean kitchen' ],
-    //     workoutTask: [ 'workout', 'chest', 'triceps' ],
-    //     studyTask: [ 'study', 'design backend' ]
-    //   }
+// const parseCsv = async function () {
+//     //  {
+//     //     toDoTask: [ 'toDo', 'refinance car', 'clean kitchen' ],
+//     //     workoutTask: [ 'workout', 'chest', 'triceps' ],
+//     //     studyTask: [ 'study', 'design backend' ]
+//     //   }
 
-    return new Promise((resolve, reject) => {
-        let toDoTask = []
-        let workoutTask = []
-        let studyTask = []
+//     return new Promise((resolve, reject) => {
+//         let toDoTask = []
+//         let workoutTask = []
+//         let studyTask = []
 
-        fs.createReadStream('input.csv')
-            .pipe(csv())
-            .on('data', (row) => {
+//         fs.createReadStream('input.csv')
+//             .pipe(csv())
+//             .on('data', (row) => {
 
-                // Push Data
-                row[0] != '' ? toDoTask.push(row[0]) : null
-                row[1] != '' ? studyTask.push(row[1]) : null
-                row[2] != '' ? workoutTask.push(row[2]) : null
+//                 // Push Data
+//                 row[0] != '' ? toDoTask.push(row[0]) : null
+//                 row[1] != '' ? studyTask.push(row[1]) : null
+//                 row[2] != '' ? workoutTask.push(row[2]) : null
 
-            })
-            .on('end', () => {
-                console.log('CSV file successfully processed');
-                resolve({
-                    "toDoTask": toDoTask,
-                    "workoutTask": workoutTask,
-                    "studyTask": studyTask
-                })
-            });
-    })
+//             })
+//             .on('end', () => {
+//                 console.log('CSV file successfully processed');
+//                 resolve({
+//                     "toDoTask": toDoTask,
+//                     "workoutTask": workoutTask,
+//                     "studyTask": studyTask
+//                 })
+//             });
+//     })
+// }
+
+const addTask = function (req) {
+
+    // Parse an input we deeply, deeply trust
+    const inputTask = req.body
+    const newToDo = inputTask.toDo || null
+    const newStudyTask = inputTask.studyTask || null
+    const newWorkoutTask = inputTask.workoutTask || null
+
+    // Load "DB" ;)
+    const task_db = require(db_path)
+    console.log(task_db)
+
+    // Form new "DB"
+    let finalDb = {}
+    if (newToDo || newStudyTask || newWorkoutTask) {
+        if (newToDo) { finalDb.toDo = task_db.toDo.concat(newToDo) }
+        if (newStudyTask) { finalDb.studyTask = task_db.studyTask.concat(newStudyTask) }
+        if (newWorkoutTask) { finalDb.workoutTask = task_db.workoutTask.concat(newWorkoutTask) }
+
+        // Write to new "DB"
+        fs.writeFileSync('./db/task_db.json', JSON.stringify(finalDb))
+        return 'Wrote to file'
+    } else {
+        return 'No changes'
+    }
 }
 
 const newsData = async function () {
@@ -42,13 +70,6 @@ const newsData = async function () {
     return axios.get(url)
 }
 
-const toDo = async function (toDoArray) {
-
-    // Study, Workouts, Study Plan
-
-    resp = await parseCsv()
-    console.log(resp)
-}
 
 const weatherData = async function (lat, lon) {
     // 37.55 -122.31
@@ -66,14 +87,14 @@ const schedulePrintJob = async function (inString, dateToExecuteInEpoch) {
     if (timeUntilExexcute < 0) {
         return 'Invalid Time'
     }
-    if (timeUntilExexcute > 2.592 * (10** 8)) {
+    if (timeUntilExexcute > 2.592 * (10 ** 8)) {
         return 'To long!'
     }
     return setTimeout(function () {
         axios.post(`${process.env.PRINTER_URL}/printer/print`, {
             firstName: 'Fred',
             lastName: 'Flintstone'
-          })
+        })
     }, timeUntilExexcute)
 }
 
@@ -89,22 +110,10 @@ const calendar = function () {
     // WIP
 }
 
-async function main() {
-    // const resp = await weatherData(37.55, -122.31)
-    // let resp = await adviceData()
-    // console.log(resp.data)
-    // console.log(Object.keys(resp.data.hourly))
-    // console.log(res)
-
-
-
-}
-
 module.exports = {
-    parseCsv: parseCsv,
     newsData: newsData,
     weatherData: weatherData,
-    schedulePrintJob: schedulePrintJob
+    schedulePrintJob: schedulePrintJob,
+    adviceData: adviceData,
+    addTask: addTask
 }
-main()
-
