@@ -1,7 +1,8 @@
 const axios = require('axios');
 const fs = require('fs')
 const csv = require('csv-parse');
-const db_path = '../db/task_db.json'
+// const db_path = '../db/task_db.json' // Relative to file
+const db_path = './db/task_db.json'// Relative to executor
 
 // const parseCsv = async function () {
 //     //  {
@@ -45,15 +46,19 @@ const addTask = function (req) {
     const newWorkoutTask = inputTask.workoutTask || null
 
     // Load "DB" ;)
-    const task_db = require(db_path)
-    console.log(task_db)
+    const task_db = JSON.parse(fs.readFileSync(db_path, 'utf-8'))
 
     // Form new "DB"
-    let finalDb = {}
+    let finalDb = {
+        "toDo": task_db.toDo,
+        "studyTask": task_db.studyTask,
+        "workoutTask": task_db.workoutTask
+    }
+
     if (newToDo || newStudyTask || newWorkoutTask) {
-        if (newToDo) { finalDb.toDo = task_db.toDo.concat(newToDo) }
-        if (newStudyTask) { finalDb.studyTask = task_db.studyTask.concat(newStudyTask) }
-        if (newWorkoutTask) { finalDb.workoutTask = task_db.workoutTask.concat(newWorkoutTask) }
+        if (newToDo) { finalDb.toDo = finalDb.toDo.concat(newToDo) }
+        if (newStudyTask) { finalDb.studyTask = finalDb.studyTask.concat(newStudyTask) }
+        if (newWorkoutTask) { finalDb.workoutTask = finalDb.workoutTask.concat(newWorkoutTask) }
 
         // Write to new "DB"
         fs.writeFileSync('./db/task_db.json', JSON.stringify(finalDb))
