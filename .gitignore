@@ -4,6 +4,7 @@
 node_modules
 package-lock.json
 task_db.json
+.eslintcache
 
 # dependencies
 /node_modules
@@ -14,7 +15,7 @@ task_db.json
 /coverage
 
 # production
-/build
+build
 
 # misc
 .DS_Store
