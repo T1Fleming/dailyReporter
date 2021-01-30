@@ -5,10 +5,31 @@ const { stdout, stderr, stdin } = require('process');
 // const db_path = '../db/task_db.json' // Relative to file
 const db_path = './db/task_db.json'// Relative to executor
 
+const generateAndSendReport = function (dateToExecuteInEpoch) {
+    // Generate PDF
+    generatePdfFromHtml().then((data)=>{
+        // Conver To B64
+        const b64string = fileTob64String(`${process.env.OUTPUT_PDF_PATH}`)
+        // Schedule To Send to Print API
+        schedulePrintJob({
+            "fileToPrint": b64string
+        }, dateToExecuteInEpoch)
+    })
+}
+
+const fileTob64String = function (path_to_file) {
+    const file_buffer = fs.readFileSync(path_to_file)
+    return file_buffer.toString('base64')
+}
+
 const generatePdfFromHtml = async function () {
     return new Promise((resolve, reject) => {
         // Use chrome in headless mode to grab url and generate pdf
-        const cmdStr = `start ${process.env.PATH_TO_CHROME} --headless --print-to-pdf="${process.env.OUTPUT_PDF_PATH}" https://${process.env.STATIC_FRONTEND_BASE_URL}`
+
+        // Options with Google Canary:
+        // * --print-to-pdf-no-header
+        const pdf_generation_options = process.env.ADDITIONAL_CHROME_OPTIONS ? `${process.env.ADDITIONAL_CHROME_OPTIONS} ` : ""
+        const cmdStr = `start ${process.env.PATH_TO_CHROME} --headless ${pdf_generation_options}--print-to-pdf="${process.env.OUTPUT_PDF_PATH}" https://${process.env.STATIC_FRONTEND_BASE_URL}`
         console.log(cmdStr)
         exec(cmdStr, (error, stdout, stderr) => {
             if (error) {
@@ -58,7 +79,6 @@ const newsData = async function () {
     return axios.get(url)
 }
 
-
 const weatherData = async function (lat, lon) {
     // 37.55 -122.31
     let url = `https://${process.env.WEATHER_API_URL}/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${process.env.WEATHER_API_KEY}`
@@ -70,7 +90,7 @@ const adviceData = async function () {
     return axios.get(`https://${process.env.ADVICE_API_URL}/advice`)
 }
 
-const schedulePrintJob = async function (inString, dateToExecuteInEpoch) {
+const schedulePrintJob = function (json_to_send, dateToExecuteInEpoch) {
     const timeUntilExexcute = dateToExecuteInEpoch - Date.now()
     if (timeUntilExexcute < 0) {
         return 'Invalid Time'
@@ -79,10 +99,7 @@ const schedulePrintJob = async function (inString, dateToExecuteInEpoch) {
         return 'To long!'
     }
     return setTimeout(function () {
-        axios.post(`${process.env.PRINTER_URL}/printer/print`, {
-            firstName: 'Fred',
-            lastName: 'Flintstone'
-        })
+        axios.post(`${process.env.PRINTER_URL}/printer/print`, json_to_send)
     }, timeUntilExexcute)
 }
 
@@ -101,8 +118,7 @@ const calendar = function () {
 module.exports = {
     newsData: newsData,
     weatherData: weatherData,
-    schedulePrintJob: schedulePrintJob,
     adviceData: adviceData,
     addTask: addTask,
-    generatePdfFromHtml: generatePdfFromHtml
+    generateAndSendReport: generateAndSendReport
 }

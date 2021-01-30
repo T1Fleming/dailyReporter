@@ -10,8 +10,10 @@ const core = require('./src/service')
 
 async function main () {
 
-    let resp = await core.generatePdfFromHtml()
-    console.log(resp)
+    core.generateAndSendReport()
+    console.log('Done')
+    // let resp = await core.generatePdfFromHtml()
+    // console.log(resp)
 
 }
 

@@ -51,9 +51,14 @@ app.get('/advice', async (req, res) => {
 })
 
 
-app.get('/submit', (req, res) => {
-  core.schedulePrintJob('After 3 seconds!', Date.now() + 10000)
-  res.send('Hello World!')
+app.post('/submit', (req, res) => {
+  try {
+    core.generateAndSendReport(Date.now() + 20000)
+    res.send('Submitted!')
+  }
+  catch {
+    res.send('No Data')
+  }
 })
 
 
