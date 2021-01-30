@@ -5,6 +5,7 @@ node_modules
 package-lock.json
 task_db.json
 .eslintcache
+output.pdf
 
 # dependencies
 /node_modules

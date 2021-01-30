@@ -1,41 +1,24 @@
 const axios = require('axios');
-const fs = require('fs')
-const csv = require('csv-parse');
+const { exec } = require('child_process');
+const fs = require('fs');
+const { stdout, stderr, stdin } = require('process');
 // const db_path = '../db/task_db.json' // Relative to file
 const db_path = './db/task_db.json'// Relative to executor
 
-// const parseCsv = async function () {
-//     //  {
-//     //     toDoTask: [ 'toDo', 'refinance car', 'clean kitchen' ],
-//     //     workoutTask: [ 'workout', 'chest', 'triceps' ],
-//     //     studyTask: [ 'study', 'design backend' ]
-//     //   }
-
-//     return new Promise((resolve, reject) => {
-//         let toDoTask = []
-//         let workoutTask = []
-//         let studyTask = []
-
-//         fs.createReadStream('input.csv')
-//             .pipe(csv())
-//             .on('data', (row) => {
-
-//                 // Push Data
-//                 row[0] != '' ? toDoTask.push(row[0]) : null
-//                 row[1] != '' ? studyTask.push(row[1]) : null
-//                 row[2] != '' ? workoutTask.push(row[2]) : null
-
-//             })
-//             .on('end', () => {
-//                 console.log('CSV file successfully processed');
-//                 resolve({
-//                     "toDoTask": toDoTask,
-//                     "workoutTask": workoutTask,
-//                     "studyTask": studyTask
-//                 })
-//             });
-//     })
-// }
+const generatePdfFromHtml = async function () {
+    return new Promise((resolve, reject) => {
+        // Use chrome in headless mode to grab url and generate pdf
+        const cmdStr = `start ${process.env.PATH_TO_CHROME} --headless --print-to-pdf="${process.env.OUTPUT_PDF_PATH}" https://${process.env.STATIC_FRONTEND_BASE_URL}`
+        console.log(cmdStr)
+        exec(cmdStr, (error, stdout, stderr) => {
+            if (error) {
+                reject(error)
+            }
+            console.log('finished: ', stdout)
+            resolve(stdout)
+        })
+    })
+}
 
 const addTask = function (req) {
 
@@ -120,5 +103,6 @@ module.exports = {
     weatherData: weatherData,
     schedulePrintJob: schedulePrintJob,
     adviceData: adviceData,
-    addTask: addTask
+    addTask: addTask,
+    generatePdfFromHtml: generatePdfFromHtml
 }
