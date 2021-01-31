@@ -1,10 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
 import brand from './img/bee.png'
-
-function RenderWeather() {
-
-}
+import progress_bar from './img/progress_bar.png'
+import ToDo from './components/ToDo'
 
 function App() {
   return (
@@ -13,12 +11,14 @@ function App() {
     //   <h1>Hello World</h1>
     // </div>
     <div className="flexbox-container">
-      <div class="flexbox-item">
+      <div className="flexbox-item">
         <img src={brand} alt="Brand" />
-        <p>Hi, this is meHi, this is me</p>
+        <ToDo/>
       </div>
-      <div class="flexbox-item"></div>
-      <div class="flexbox-item"></div>
+      <div className="flexbox-item">
+        <img src={progress_bar} alt="Brand" />
+      </div>
+      <div className="flexbox-item"></div>
     </div>
   );
 }
