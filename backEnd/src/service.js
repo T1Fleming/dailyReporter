@@ -29,7 +29,7 @@ const generatePdfFromHtml = async function () {
         // Options with Google Canary:
         // * --print-to-pdf-no-header
         const pdf_generation_options = process.env.ADDITIONAL_CHROME_OPTIONS ? `${process.env.ADDITIONAL_CHROME_OPTIONS} ` : ""
-        const cmdStr = `start ${process.env.PATH_TO_CHROME} --headless ${pdf_generation_options}--print-to-pdf="${process.env.OUTPUT_PDF_PATH}" https://${process.env.STATIC_FRONTEND_BASE_URL}`
+        const cmdStr = `start ${process.env.PATH_TO_CHROME} --headless ${pdf_generation_options}--print-to-pdf="${process.env.OUTPUT_PDF_PATH}" --virtual-time-budget=20000 https://${process.env.STATIC_FRONTEND_BASE_URL}`
         console.log(cmdStr)
         exec(cmdStr, (error, stdout, stderr) => {
             if (error) {
